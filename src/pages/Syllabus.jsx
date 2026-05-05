@@ -53,7 +53,7 @@ export default function Syllabus() {
         {
           unitNumber: "",
           unitName: "",
-          speciality: "",
+          speciality: "", 
           content: "",
           lectureHours: "",
           labHours: "",
@@ -78,7 +78,12 @@ export default function Syllabus() {
 
   /* ---------------- EXPORT ---------------- */
   const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(data);
+    const exportData = data.map((item) => ({
+      ...item,
+      units: JSON.stringify(item.units || [])
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Syllabus");
     XLSX.writeFile(wb, "syllabus.xlsx");
@@ -90,11 +95,65 @@ export default function Syllabus() {
     if (!file) return;
 
     const reader = new FileReader();
+
     reader.onload = (evt) => {
       const wb = XLSX.read(new Uint8Array(evt.target.result), { type: "array" });
       const sheet = wb.Sheets[wb.SheetNames[0]];
-      setData(XLSX.utils.sheet_to_json(sheet));
+      const rows = XLSX.utils.sheet_to_json(sheet);
+
+      const structured = [];
+
+      rows.forEach((row) => {
+        const programme = row.Programme || "";
+        const semester = String(row.Semester || "");
+        const subject = row.Subject || "";
+
+        let subjectObj = structured.find(
+          (s) =>
+            s.programme === programme &&
+            s.levelName === semester &&
+            s.subject === subject
+        );
+
+        if (!subjectObj) {
+          subjectObj = {
+            programme,
+            type: row.Type || "Semester",
+            levelName: semester,
+            subject,
+            units: []
+          };
+          structured.push(subjectObj);
+        }
+
+        let unitObj = subjectObj.units.find(
+          (u) => String(u.unitNumber) === String(row.Unit)
+        );
+
+        if (!unitObj) {
+          unitObj = {
+            unitNumber: row.Unit || "",
+            unitName: row.UnitName || "",
+            speciality: row.Category || "", // ✅ category fixed
+            content: "",
+            lectureHours: 0,
+            labHours: 0,
+            unitExam: row.UnitExam || "No"
+          };
+          subjectObj.units.push(unitObj);
+        }
+
+        if (row.Topic) {
+          unitObj.content += (unitObj.content ? "\n" : "") + row.Topic;
+        }
+
+        unitObj.lectureHours += Number(row.LectureHours || 0);
+        unitObj.labHours += Number(row.LabHours || 0);
+      });
+
+      setData(structured);
     };
+
     reader.readAsArrayBuffer(file);
   };
 
@@ -202,7 +261,6 @@ export default function Syllabus() {
           ).map(([programme, semesters]) => (
             <div key={programme} className="bg-white border rounded-xl p-5">
 
-              {/* PROGRAMME */}
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 {programme}
               </h2>
@@ -210,9 +268,9 @@ export default function Syllabus() {
               {Object.entries(semesters).map(([semester, subjects]) => (
                 <div key={semester} className="mb-6">
 
-                  {/* SEMESTER */}
+                  {/* ✅ FIXED LABEL */}
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                    Semester/Year {semester}
+                    {subjects[0]?.type} {semester}
                   </h3>
 
                   {subjects.map((d) => (
@@ -221,7 +279,6 @@ export default function Syllabus() {
                       className="border rounded-lg p-4 mb-4 bg-white"
                     >
 
-                      {/* SUBJECT */}
                       <div className="flex justify-between items-center">
                         <h4 className="font-semibold text-gray-900">
                           📖 {d.subject}
@@ -250,7 +307,6 @@ export default function Syllabus() {
                         </div>
                       </div>
 
-                      {/* UNITS */}
                       <div className="mt-3 space-y-2">
                         {d.units?.length ? (
                           d.units.map((u, i) => (
@@ -261,6 +317,13 @@ export default function Syllabus() {
                               <div className="font-semibold text-gray-900">
                                 Unit {u.unitNumber}: {u.unitName}
                               </div>
+
+                              {/* ✅ CATEGORY DISPLAY */}
+                              {u.speciality && (
+                                <div className="font-semibold text-gray-600">
+                                  Category: {u.speciality}
+                                </div>
+                              )}
 
                               <div className="text-gray-700 text-sm mt-1">
                                 {u.content}
@@ -307,7 +370,6 @@ export default function Syllabus() {
                   Syllabus Form
                 </h2>
 
-                {/* PROGRAMME */}
                 <select
                   value={form.programme}
                   onChange={(e) =>
@@ -321,7 +383,6 @@ export default function Syllabus() {
                   ))}
                 </select>
 
-                {/* TYPE */}
                 <select
                   value={form.type}
                   onChange={(e) =>
@@ -333,7 +394,6 @@ export default function Syllabus() {
                   <option>Year</option>
                 </select>
 
-                {/* LEVEL */}
                 <input
                   value={form.levelName}
                   onChange={(e) =>
@@ -343,7 +403,6 @@ export default function Syllabus() {
                   placeholder="Semester / Year Name"
                 />
 
-                {/* SUBJECT */}
                 <input
                   value={form.subject}
                   onChange={(e) =>
@@ -353,7 +412,6 @@ export default function Syllabus() {
                   placeholder="Subject"
                 />
 
-                {/* UNITS HEADER */}
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-semibold">Units</h3>
 
@@ -365,7 +423,6 @@ export default function Syllabus() {
                   </button>
                 </div>
 
-                {/* UNITS */}
                 {form.units.map((u, i) => (
                   <div key={i} className="border p-3 rounded mb-3 bg-gray-50">
 
@@ -383,6 +440,16 @@ export default function Syllabus() {
                       value={u.unitName}
                       onChange={(e) =>
                         updateUnit(i, "unitName", e.target.value)
+                      }
+                      className="w-full p-2 border rounded mb-2"
+                    />
+
+                    {/* ✅ CATEGORY INPUT */}
+                    <input
+                      placeholder="Category"
+                      value={u.speciality}
+                      onChange={(e) =>
+                        updateUnit(i, "speciality", e.target.value)
                       }
                       className="w-full p-2 border rounded mb-2"
                     />
@@ -439,7 +506,6 @@ export default function Syllabus() {
                   </div>
                 ))}
 
-                {/* ACTIONS */}
                 <div className="flex justify-end gap-3 mt-4">
 
                   <button

@@ -17,7 +17,7 @@ import ExternalProfile from "../pages/ExternalStaffProfile";
 import ExternalSubjectManagement from "../pages/ExternalSubjectManagement"; 
 import CollegeLeave from "../pages/CollegeLeave";
 import ClinicalECA from "../pages/ClinicalECA";
-import SessionalModelExamManagement from "../pages/SessionalModelExam";
+import ExamManagement from "../pages/ExamManagement";
 import Reports from "../pages/Reports";
 import Ranks from "../pages/Ranks";
 import ExamMark from "../pages/ExamMark";
@@ -45,7 +45,7 @@ export default function AppRoutes() {
           <Route path="staff-leave" element={<StaffLeave />} />
           <Route path="college-leave" element={<CollegeLeave />} />
           <Route path="clinical-eca" element={<ClinicalECA />} />
-          <Route path="sessional-model-exam" element={<SessionalModelExamManagement />} />
+          <Route path="exam-management" element={<ExamManagement />} /> 
           <Route path="reports" element={<Reports />} />
           <Route path="ranks" element={<Ranks />} />
           <Route path="exam-mark" element={<ExamMark />} />

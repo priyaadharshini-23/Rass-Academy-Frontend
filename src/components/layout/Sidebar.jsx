@@ -67,7 +67,7 @@ const menu = [
   {
     title: "EXAMS & REPORTS",
     items: [
-      { name: "Sessional Model Exam", icon: FileText, path: "/admin/sessional-model-exam" },
+      { name: "Exam Management", icon: FileText, path: "/admin/exam-management" },  
       { name: "Exam Mark Entry", icon: FileText, path: "/admin/exam-mark" },
       { name: "Reports", icon: BarChart3, path: "/admin/reports" }
     ]
@@ -145,14 +145,6 @@ export default function Sidebar({ collapsed, setCollapsed, mobileClose }) {
 
       {/* FOOTER */}
       <div className="p-3 border-t border-white/10 space-y-2">
-        <NavLink
-          to="/admin/settings"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-white/5"
-        >
-          <Settings size={18} />
-          {!collapsed && "Settings"}
-        </NavLink>
-
         <button className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 w-full">
           <LogOut size={18} />
           {!collapsed && "Logout"}
