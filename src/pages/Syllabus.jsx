@@ -646,7 +646,7 @@ export default function Syllabus() {
                         value={u.content}
                         onChange={(e) => updateUnit(i, "content", e.target.value)}
                         rows={3}
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 bg-white
                                    focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
                       />
                     </div>
