@@ -524,7 +524,7 @@ export default function Staff() {
                     value={form.address}
                     onChange={set("address")}
                     className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm
-                               bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                               text-gray-500 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
                   />
                 </div>
               </div>
@@ -558,10 +558,10 @@ export default function Staff() {
                         value={q.degree}
                         onChange={(e) => updateQual(i, "degree", e.target.value)}
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white
-                                   focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                   focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-500"
                       >
-                        <option value="">— Select Degree —</option>
-                        {DEGREES.map((d) => <option key={d} value={d}>{d}</option>)}
+                        <option  value="">— Select Degree —</option>
+                        {DEGREES.map((d) => <option key={d} value={d} className="text-gray-500">{d}</option>)}
                       </select>
                     </div>
 
